@@ -900,7 +900,7 @@ class PlayState extends MusicBeatState
 		dialogueHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(dialogueHUD);
 
-		if (sys.FileSystem.exists(Paths.songJson(SONG.song.toLowerCase(), 'lyrics', false)) && !PlayState.old) {
+		if (sys.Assets.exists(Paths.songJson(SONG.song.toLowerCase(), 'lyrics', false)) && !PlayState.old) {
 			trace('ly rics');
 			var myLyrics:Array<LyricMeasure> = Lyrics.parseLyrics(SONG.song.toLowerCase());
 			var lyrics:Lyrics = new Lyrics(myLyrics);
@@ -1163,6 +1163,12 @@ class PlayState extends MusicBeatState
 
 		if (bronzongMechanic)
 			{
+				
+		#if android
+		addAndroidControls();
+		androidControls.visible = true;	
+		#end
+				
 				keysArray = [
 					copyKey(Init.gameControls.get('LEFT')[0]),
 					copyKey(Init.gameControls.get('DOWN')[0]),
@@ -3967,7 +3973,7 @@ class PlayState extends MusicBeatState
 
 		// generate the chart
 		unspawnNotes = ChartLoader.generateChartType(SONG, determinedChartType, this);
-		if (sys.FileSystem.exists(Paths.songJson(SONG.song.toLowerCase(), 'events', old))) {
+		if (Assets.exists(Paths.songJson(SONG.song.toLowerCase(), 'events', old))) {
 			trace('events found');
 			var eventJson:SwagSong = Song.loadFromJson('events', SONG.song.toLowerCase(), old);
 			if (eventJson != null)
