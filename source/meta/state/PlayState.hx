@@ -900,7 +900,7 @@ class PlayState extends MusicBeatState
 		dialogueHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(dialogueHUD);
 
-		if (sys.Assets.exists(Paths.songJson(SONG.song.toLowerCase(), 'lyrics', false)) && !PlayState.old) {
+		if (Assets.exists(Paths.songJson(SONG.song.toLowerCase(), 'lyrics', false)) && !PlayState.old) {
 			trace('ly rics');
 			var myLyrics:Array<LyricMeasure> = Lyrics.parseLyrics(SONG.song.toLowerCase());
 			var lyrics:Lyrics = new Lyrics(myLyrics);
