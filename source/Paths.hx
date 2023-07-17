@@ -179,7 +179,7 @@ class Paths
 			if (library != null)
 				currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
 			else
-				currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
+				currentTrackedSounds.set(gottenPath, Sound.fromFile(gottenPath));
 		}
 		localTrackedAssets.push(key);
 		return currentTrackedSounds.get(gottenPath);
