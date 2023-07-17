@@ -1,13 +1,5 @@
 package meta.state.menus;
 
-import gameObjects.userInterface.menu.NumPixelSelector;
-import flixel.FlxObject;
-import flixel.math.FlxMath;
-import flixel.group.FlxSpriteGroup;
-import gameObjects.userInterface.menu.Textbox;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import meta.MusicBeat.MusicBeatSubState;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -16,625 +8,618 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import gameObjects.userInterface.menu.Checkmark;
-import gameObjects.userInterface.menu.PixelSelector;
+import gameObjects.userInterface.menu.Selector;
 import meta.MusicBeat.MusicBeatState;
+#if DISCORD_ALLOWED
 import meta.data.dependency.Discord;
+#end
 import meta.data.dependency.FNFSprite;
 import meta.data.font.Alphabet;
-import Init.SettingTypes;
+import meta.subState.OptionsSubstate;
 
 /**
- * Options
- * 
- * Preferences
- * Controls
- * Mechanics
- * Effects
- * Exit
- * 
- */
-
-/**
- * Preferences
- * 
- * Downscroll
- * Centered Notefield
- * Framerate Cap
- * 
- * Camera Movement
- * Note Splashes
- * Opaque Arrows
- * Opaque Holds
- * 
- * Antialiasing
- * Colorblind Filter (?)
- * 
- * FPS Counter
- * Memory Counter
- */
-
-/**
- * Controls
- * 
- * Left
- * Down
- * Mechanic
- * Up
- * Right
- * 
- * Accept
- * Back
- * Pause
- * 
- * UI Left
- * UI Down
- * UI Up
- * UI Right
- * Edit Offset
- */
-
-/**
- * Mechanics
- * 
- * Pendulum
- * Rate per Beats (2, min 1, max 8)
- * Psyshock (true by default)
- * Psyshock Damage Percent (1.0)
- * Ghost Tapping (most likely not as it ruins the mechanic/requires a rewrite to function properly based on accuracy)
- * 
- * Typhlosion
- * Rate of Fire (2 by default, min 1, max 4), rate of how many times used per drain 
- * Pain Split (true by default)
- * 
- * Feraligatr
- * Time Before Death (in seconds) (default 10, min 5, max 15)
- * Accuracy Percentage (default 90, min 70, max 99)
- * 
- * Unowns
- * Time Multiplier (1 default, min 0.5, max 2)
- * Lock Arrows (false by default)
- * Disable Time (locked unless using lock arrows, which it gives you the option)
- * 
- * Missingno
- * Glitching (true default)
- * 
- * Buried
- * Gengar Notes (true default)
- * Muk Splashes (true default)
- * 
- * Death Toll 
- * 5th Key (true by default)
- * 
- * Pasta Night
- * MX Pow Block (true by default)
- * 
- * Bygone Purpose
- * Floaty-Note-y (true by default)
- */
-
-typedef OptionData = Array<Dynamic>; // just to make it more readable
-
-class OptionsMenuState extends MusicBeatSubState
+	Options menu rewrite because I'm unhappy with how it was done previously
+**/
+class OptionsMenuState extends MusicBeatState
 {
-	/* "name" => [
-		["name", ?confirmFunc, ?extraGenerationFunc, ?updateFunc]
-	] 
-	confirmFunc is called when you press enter while on the option
-	extraGenerationFunc is called when generating the extras (checkboxes, selections, etc)
-	updateFunc is called every update while the option is on screen
-	*/
-	var categoryMap:Map<String, Array<OptionData>> = [];
+	private var categoryMap:Map<String, Dynamic>;
+	private var activeSubgroup:FlxTypedGroup<Alphabet>;
+	private var attachments:FlxTypedGroup<FlxBasic>;
 
-	// would do this diff but im tryna keep it similar to Forever's own without just copy pasting it 
-	var currentExtras:Map<FlxText, FlxSprite> = [];
-	var currentSelected:Map<String, Int> = [];
-	var currentDisplayed:FlxTypedGroup<FlxText>;
-	var currentScreen:Array<OptionData>;
-	var currentScreenName:String;
+	var curSelection = 0;
+	var curSelectedScript:Void->Void;
+	var curCategory:String;
 
-	var allDisplays:Map<String, FlxTypedGroup<FlxText>> = [];
-	var allExtras:Map<String, Map<FlxText, FlxSprite>> = [];
-	var centralTextbox:Textbox;
-	var scale:Float = 3;
-	var expanseHorizontal:Float;
-	var expanseVertical:Float;
-	var defaultExpanseHorizontal:Float;
-	var defaultExpanseVertical:Float;
-	var selector:FlxSprite;
-	var curSelected:Int = 0;
-	var bg:FlxSprite;
-
-	var canControl:Bool = true;
-	function exit(){
-		canControl = false;
-		FlxTween.cancelTweensOf(bg);
-		var menuState:MainMenuState = cast FlxG.state;
-		menuState.canSelect = true;
-
-		FlxTween.tween(centralTextbox, {"scale.x": 0, "scale.y": 0}, 0.35, {
-			ease: FlxEase.circOut
-		});
-
-		FlxTween.tween(bg, {alpha: 0}, 0.35, {
-			ease: FlxEase.circOut,
-			onComplete: function(tween:FlxTween)
-			{
-				close();
-			}
-		});
-	}
+	var lockedMovement:Bool = false;
 
 	override public function create():Void
 	{
-		categoryMap = [
-			'main' => [
-				// main page
-				["Controls", function(){
-						openSubState(new BindSubstate());
-				}],
-				["Preferences", loadSelectedGroup],
-				["Appearance", loadSelectedGroup],
-				["Mechanics", loadSelectedGroup],
-				["Effects", loadSelectedGroup],
-				["Exit", exit]
-			],
-			"Preferences" => [
-				["Game Settings"],
-				["Downscroll", confirmOption, generateExtra, updateOption],
-				["Centered Notefield", confirmOption, generateExtra, updateOption],
-				["Counter", confirmOption, generateExtra, updateOption],
-				["Display Accuracy", confirmOption, generateExtra, updateOption],
-				["Unfocus Pause", confirmOption, generateExtra, updateOption],
-				["Offset", confirmOption, generateExtra, updateOption],
-
-				["Meta Settings"],
-				["Framerate Cap", confirmOption, generateExtra, updateOption],
-				["FPS Counter", confirmOption, generateExtra, updateOption],
-				["Memory Counter", confirmOption, generateExtra, updateOption],
-
-				["Full Restored"],
-				["Fully Accurate Restore", confirmOption, generateExtra, updateOption]
-			],
-			"Appearance" => [
-				["Judgements"],
-				["Fixed Judgements", confirmOption, generateExtra, updateOption],
-				["Simply Judgements", confirmOption, generateExtra, updateOption],
-				["Notes"],
-				["No Camera Note Movement", confirmOption, generateExtra, updateOption],
-				["Clip Style", confirmOption, generateExtra, updateOption],
-				["Disable Note Splashes", confirmOption, generateExtra, updateOption],
-				["Opaque Arrows", confirmOption, generateExtra, updateOption],
-				["Opaque Holds", confirmOption, generateExtra, updateOption],
-				["Accessibility"],
-				["Flashing Lights", confirmOption, generateExtra, updateOption],
-				["Filter", confirmOption, generateExtra, updateOption],
-				["Disable Antialiasing", confirmOption, generateExtra, updateOption],
-				["Stage Opacity", confirmOption, generateExtra, updateOption],
-				["Opacity Type", confirmOption, generateExtra, updateOption],
-				["Reduced Movements", confirmOption, generateExtra, updateOption],
-			],
-			"Mechanics" => [
-				["Mechanics", confirmOption, generateExtra, updateOption],
-				["Custom Settings"],
-				["Pendulum"],
-				["Pendulum Enabled", confirmOption, generateExtra, updateOption],
-				["Psyshock", confirmOption, generateExtra, updateOption],
-				["Beat Time", confirmOption, generateExtra, updateOption],
-				["Psyshock Damage Percent", confirmOption, generateExtra, updateOption],
-				
-				["Frostbite"],
-				["Freezing Enabled", confirmOption, generateExtra, updateOption],
-				["Freezing Rate Percent", confirmOption, generateExtra, updateOption],
-				["Typhlosion Uses", confirmOption, generateExtra, updateOption],
-				["Typhlosion Warmth Percent", confirmOption, generateExtra, updateOption],
-				["Typhlosion Return Curve", confirmOption, generateExtra, updateOption],
-
-				["Feraligatr"],
-				["Forced Accuracy", confirmOption, generateExtra, updateOption],
-				["Accuracy Cap", confirmOption, generateExtra, updateOption],
-
-				["Hell Bell"],
-				["Fifth Key", confirmOption, generateExtra, updateOption],
-
-			],
-			"Effects" => [
-				["Shaders", confirmOption, generateExtra, updateOption],
-				["Snowfall"],
-				["Snow Enabled", confirmOption, generateExtra, updateOption],
-				["Death Toll"],
-				["Hell Mode Ear Ringing", confirmOption, generateExtra, updateOption],
-			],
-		];
 		super.create();
 
-		bg = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
-		bg.setGraphicSize(FlxG.width, FlxG.height);
-		bg.screenCenter();
-		bg.alpha = 0;
+		// define the categories
+		/* 
+			To explain how these will work, each main category is just any group of options, the options in the category are defined
+			by the first array. The second array value defines what that option does.
+			These arrays are within other arrays for information storing purposes, don't worry about that too much.
+			If you plug in a value, the script will run when the option is hovered over.
+		 */
 
-		FlxTween.tween(bg, {alpha: 1}, 0.25, {ease: FlxEase.circOut});
-		centralTextbox = new Textbox(0, 0);
-		centralTextbox.screenCenter();
-		centralTextbox.scale.set(3, 3);
-		centralTextbox.boxHeight = 0;
-		centralTextbox.boxWidth = 0;
-		expanseHorizontal = 9;
-		expanseVertical = (1.5 * categoryMap.get("main").length) - 1;
+		// NOTE : Make sure to check Init.hx if you are trying to add options.
 
-		defaultExpanseVertical = expanseVertical;
-		defaultExpanseHorizontal = expanseHorizontal;
+		#if DISCORD_ALLOWED
+		Discord.changePresence('OPTIONS MENU', 'Main Menu');
+		#end
 
+		categoryMap = [
+			'main' => [
+				[
+					['preferences', callNewGroup],
+					['appearance', callNewGroup],
+					#if mobile
+					['mobile controls', openMobileControlsMenu],
+					#end
+					['controls', openControlmenu],
+					['exit', exitMenu]
+				]
+			],
+			'preferences' => [
+				[
+					['Game Settings', null],
+					['', null],
+					['Controller Mode', getFromOption],
+					['Downscroll', getFromOption],
+					['Centered Notefield', getFromOption],
+					['Ghost Tapping', getFromOption],
+					['Display Accuracy', getFromOption],
+					['Skip Text', getFromOption],
+					['', null],
+					['Meta Settings', null],
+					['', null],
+					["Framerate Cap", getFromOption],
+					["Texture Compression", getFromOption],
+					['FPS Counter', getFromOption],
+					['Memory Counter', getFromOption],
+					['Debug Info', getFromOption],
+					['Mechanics', getFromOption],
+				]
+			],
+			'appearance' => [
+				[
+					['Judgements', null],
+					['', null],
+					['Fixed Judgements', getFromOption],
+					['Simply Judgements', getFromOption],
+					['Counter', getFromOption],
+					['', null],
+					['Notes', null],
+					['', null],
+					["Clip Style", getFromOption],
+					['No Camera Note Movement', getFromOption],
+					['Disable Note Splashes', getFromOption],
+					['Opaque Arrows', getFromOption],
+					['Opaque Holds', getFromOption],
+					['', null],
+					['Accessibility Settings', null],
+					['', null],
+					['Flashing Lights', getFromOption],
+					['Filter', getFromOption],
+					['Disable Antialiasing', getFromOption],
+					["Stage Opacity", getFromOption],
+					["Opacity Type", getFromOption],
+					['Reduced Movements', getFromOption],
+				]
+			]
+		];
+
+		for (category in categoryMap.keys())
+		{
+			categoryMap.get(category)[1] = returnSubgroup(category);
+			categoryMap.get(category)[2] = returnExtrasMap(categoryMap.get(category)[1]);
+		}
+
+		// call the options menu
+		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width * 4, FlxG.height * 4, FlxColor.BLACK);
 		add(bg);
-		add(centralTextbox);
 
-		selector = new FlxSprite();
-		selector.loadGraphic(Paths.image('UI/pixel/selector'));
-		selector.scrollFactor.set();
-		add(selector);
+		var sleft:FlxSprite = new FlxSprite(78, 120);
+		sleft.frames = Paths.getSparrowAtlas('menus/options/S Unown');
+		sleft.animation.addByPrefix('idle', 'S Unown', 24, true);
+		sleft.animation.play('idle');
+		sleft.updateHitbox();
+		add(sleft);
 
-		//allDisplays.set("main", generateGroup(categoryMap.get("main")));
-		for (name in categoryMap.keys()){
-			var shit = generateGroup(categoryMap.get(name));
-			allDisplays.set(name, shit[0]);
-			allExtras.set(name, shit[1]);
-		}
+		var sright:FlxSprite = new FlxSprite(916, 335);
+		sright.frames = Paths.getSparrowAtlas('menus/options/S Unown');
+		sright.animation.addByPrefix('idle', 'S Unown', 24, true);
+		sright.animation.play('idle');
+		sright.updateHitbox();
+		add(sright);
 
-		loadGroup("main");
+		var uUnown:FlxSprite = new FlxSprite(850, 50);
+		uUnown.frames = Paths.getSparrowAtlas('menus/options/U Unown');
+		uUnown.animation.addByPrefix('idle', 'U Unown', 24, true);
+		uUnown.animation.play('idle');
+		uUnown.updateHitbox();
+		add(uUnown);
+
+		infoText = new FlxText(5, FlxG.height - 24, 0, "", 32);
+		infoText.setFormat("VCR OSD Mono", 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		infoText.textField.background = true;
+		infoText.textField.backgroundColor = FlxColor.BLACK;
+		add(infoText);
+
+		loadSubgroup('main');
+
+		#if mobile
+		addVirtualPad(LEFT_FULL, A_B);
+		#end
 	}
 
-	var pressTimers:Map<FlxObject, Float> = [];
-	var isHolding:Map<FlxObject, Bool> = [];
-	
-	function updateOption(){
-		var name = currentScreen[curSelected][0];
-		if (!Init.trueSettings.exists(name) || !Init.gameSettings.exists(name))
-			return;
+	private var currentAttachmentMap:Map<Alphabet, Dynamic>;
 
-		switch (Init.gameSettings.get(name)[0])
+	function loadSubgroup(subgroupName:String)
+	{
+		// unlock the movement
+		lockedMovement = false;
+
+		// lol we wanna kill infotext so it goes over checkmarks later
+		if (infoText != null)
+			remove(infoText);
+
+		// kill previous subgroup attachments
+		if (attachments != null)
+			remove(attachments);
+
+		// kill previous subgroup if it exists
+		if (activeSubgroup != null)
+			remove(activeSubgroup);
+
+		// load subgroup lmfao
+		activeSubgroup = categoryMap.get(subgroupName)[1];
+		add(activeSubgroup);
+
+		// set the category
+		curCategory = subgroupName;
+
+		// add all group attachments afterwards
+		currentAttachmentMap = categoryMap.get(subgroupName)[2];
+		attachments = new FlxTypedGroup<FlxBasic>();
+		for (setting in activeSubgroup)
+			if (currentAttachmentMap.get(setting) != null)
+				attachments.add(currentAttachmentMap.get(setting));
+		add(attachments);
+
+		// re-add
+		add(infoText);
+		regenInfoText();
+
+		// reset the selection
+		curSelection = 0;
+		selectOption(curSelection);
+	}
+
+	function selectOption(newSelection:Int, playSound:Bool = true)
+	{
+		if ((newSelection != curSelection) && (playSound))
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+
+		// direction increment finder
+		var directionIncrement = ((newSelection < curSelection) ? -1 : 1);
+
+		// updates to that new selection
+		curSelection = newSelection;
+
+		// wrap the current selection
+		if (curSelection < 0)
+			curSelection = activeSubgroup.length - 1;
+		else if (curSelection >= activeSubgroup.length)
+			curSelection = 0;
+
+		// set the correct group stuffs lol
+		for (i in 0...activeSubgroup.length)
 		{
-			case StringSelector | NumberSelector:
-				var pressLeft = controls.UI_LEFT_P;
-				var pressRight = controls.UI_RIGHT_P;
+			activeSubgroup.members[i].alpha = 0.6;
+			if (currentAttachmentMap != null)
+				setAttachmentAlpha(currentAttachmentMap.get(activeSubgroup.members[i]), 0.6);
+			activeSubgroup.members[i].targetY = (i - curSelection) / 2;
+			activeSubgroup.members[i].xTo = 200 + ((i - curSelection) * 25);
 
-				var left = controls.UI_LEFT;
-				var right = controls.UI_RIGHT;
-				
-				var selector:Dynamic = currentExtras.get(currentDisplayed.members[curSelected]);
-				if (pressTimers.get(selector) == null)
-					pressTimers.set(selector, 0);
-
-				if(left || right)
-					pressTimers.set(selector, pressTimers.get(selector) + FlxG.elapsed);
-				else{
-					pressTimers.set(selector, 0);
-					isHolding.set(selector, false);
-				}
-
-				if (pressTimers.get(selector) >= 0.3){
-					if (!isHolding.get(selector)){
-						isHolding.set(selector, true);
-						pressTimers.set(selector, 0.1);
-					}
-				}
-				
-				
-				if (pressTimers.get(selector) >= 0.1 && isHolding.get(selector)){ // every 0.1 seconds that its held
-					pressTimers.set(selector, pressTimers.get(selector) - 0.1);
-					pressLeft = left;
-					pressRight = right;
-				}
-				
-				if (!left)
-					selector.selectorPlay('left');
-					
-				if (!right)
-					selector.selectorPlay('right');
-
-				if (pressLeft)
-					updateSelector(selector, -1);
-
-				if (pressRight)
-					updateSelector(selector, 1);
-
-			case Checkmark:
-
-			default:
-				// nawr
-		}
-	}
-
-	function updateSelector(selector:Dynamic, inc:Int=0){
-		var settingDat = Init.gameSettings.get(selector.setting);
-		trace(settingDat[0]);
-		if (settingDat[0] == NumberSelector){
-			var sel:NumPixelSelector = cast selector;
-			sel.value += inc * sel.step;
-			if(selector.value < sel.min)sel.value = sel.max;
-			if(selector.value > sel.max)sel.value = sel.min;
-			sel.chosenOptionString = Std.string(sel.value);
-			sel.optionChosen.text = sel.chosenOptionString + (settingDat[6] == null ? "" : settingDat[6]);
-			trace(sel.optionChosen.text);
-		}else{
-			var sel:PixelSelector = cast selector;
-			var curIdx:Int = sel.options.indexOf(selector.chosenOptionString);
-			var newIdx:Int = curIdx + inc;
-			var len:Int = sel.options.length;
-			if (newIdx < 0)
-				newIdx = len - 1;
-			else if (newIdx >= len)
-				newIdx = 0;
-
-			sel.chosenOptionString = sel.options[newIdx];
-			sel.optionChosen.text = sel.chosenOptionString.toUpperCase() + (settingDat[6] == null ? "" : settingDat[6]);
-		}
-
-		if(inc<0)
-			selector.selectorPlay('left', 'press');
-		else if(inc>0)
-			selector.selectorPlay('right', 'press');
-
-		FlxG.sound.play(Paths.sound('scrollMenu'));
-
-
-
-		var type = settingDat[0];
-		switch(type){
-			case NumberSelector:
-				var sel:NumPixelSelector = cast selector;
-				Init.trueSettings.set(sel.setting, sel.value);
-			case StringSelector:
-				var sel:PixelSelector = cast selector;
-				Init.trueSettings.set(sel.setting, sel.chosenOptionString);
-			default:
-
-		}
-		
-		Init.saveSettings();
-	}
-
-	function confirmOption(){
-		var name = currentScreen[curSelected][0];
-		if(!Init.trueSettings.exists(name) || !Init.gameSettings.exists(name))return;
-
-		switch(Init.gameSettings.get(name)[0]){
-			case StringSelector:
-
-			case NumberSelector:
-
-			case Checkmark:
-				var newTog = !Init.trueSettings.get(name);
-				Init.trueSettings.set(name, newTog);
-				currentExtras.get(currentDisplayed.members[curSelected]).animation.play(newTog ? "selected" : "unselected");
-				Init.saveSettings();
-			default:
-				// nawr
-		}
-	}
-	
-	function loadGroup(daGroup:String){
-		if (currentDisplayed!=null)
-			remove(currentDisplayed);
-		
-		for (key in currentExtras.keys()){
-			var extra = currentExtras.get(key);
-			remove(extra);
-		}
-		curSelected = currentSelected.get(daGroup);
-		currentDisplayed = allDisplays.get(daGroup);
-		currentScreen = categoryMap.get(daGroup);
-		currentExtras = allExtras.get(daGroup);
-		currentScreenName = daGroup;
-		
-		add(currentDisplayed);
-		if (daGroup=='main'){
-			expanseVertical = defaultExpanseVertical;
-			expanseHorizontal = defaultExpanseHorizontal;
-		}else{
-			expanseHorizontal = 24;
-			expanseVertical = 18;
-		}
-		for (key in currentExtras.keys())
-		{
-			var extra = currentExtras.get(key);
-			add(extra);
-		}
-		changeSelection(0);
-	}
-
-	function generateGroup(group:Array<OptionData>):Array<Dynamic>{	
-		var idx:Int = 0;
-		var typedGroup = new FlxTypedGroup<FlxText>();
-		var extraMap:Map<FlxText, FlxSprite>=[];
-		for(dat in group){
-			var label = dat[0];
-
-			var newText:FlxText = new FlxText(0, idx * 30, 0, label);
-			newText.setFormat(Paths.font('poketext.ttf'), 8, FlxColor.BLACK);
-			newText.screenCenter();
-			newText.antialiasing = false;
-			newText.scrollFactor.set();
-			typedGroup.add(newText);
-
-			var extra:Dynamic = (dat[2] == null)?null:dat[2](dat);
-			if(extra!=null){
-				extraMap.set(newText, extra);
+			// check for null members and hardcode the dividers
+			if (categoryMap.get(curCategory)[0][i][1] == null)
+			{
+				activeSubgroup.members[i].alpha = 1;
+				activeSubgroup.members[i].xTo += Std.int((FlxG.width / 2) - ((activeSubgroup.members[i].text.length / 2) * 40)) - 200;
 			}
 		}
-		return [typedGroup, extraMap];
-		//allDisplays.set(group)
+
+		activeSubgroup.members[curSelection].alpha = 1;
+		if (currentAttachmentMap != null)
+			setAttachmentAlpha(currentAttachmentMap.get(activeSubgroup.members[curSelection]), 1);
+
+		// what's the script of the current selection?
+		for (i in 0...categoryMap.get(curCategory)[0].length)
+			if (categoryMap.get(curCategory)[0][i][0] == activeSubgroup.members[curSelection].text)
+				curSelectedScript = categoryMap.get(curCategory)[0][i][1];
+		// wow thats a dumb check lmao
+
+		// skip line if the selected script is null (indicates line break)
+		if (curSelectedScript == null)
+			selectOption(curSelection + directionIncrement, false);
 	}
 
-	function generateExtra(data:OptionData):FlxSprite{
-		var shit = Init.gameSettings.get(data[0]);
-		if(shit!=null){
-			switch(shit[0]){
-				case StringSelector:
-					var selector:PixelSelector = new PixelSelector(10, 0, data[0], Init.gameSettings.get(data[0])[3]);
-					selector.scale.set(3, 3);
-					selector.updateHitbox();
-					return selector;
-				case NumberSelector:
-					/*var options:Array<String> = [];
-					var gameSettings = Init.gameSettings.get(data[0]);
-					var idx:Float = gameSettings[4];
-					var step:Float = gameSettings[3];
-					while(idx <= gameSettings[5]){
-						options.push(Std.string(idx));
-						idx += step;
-					}
-					var selector:PixelSelector = new PixelSelector(10, 0, data[0], options);
-					selector.scale.set(3, 3);
-					selector.updateHitbox();
-					
-					return selector;*/
-					var gameSettings = Init.gameSettings.get(data[0]);
-					// Step, Min, Max, Suffix (optional)
-					// 3, 4, 5, 6
-
-					var selector:NumPixelSelector = new NumPixelSelector(10, 0, data[0], gameSettings[4], gameSettings[5], gameSettings[3]);
-					selector.scale.set(3, 3);
-					selector.updateHitbox();
-					return selector;
-				case Checkmark:
-					var checkbox = new FlxSprite().loadGraphic(Paths.image("UI/pixel/checkbox"), true, 11, 11);
-					checkbox.animation.add("unselected", [0], 24, false);
-					checkbox.animation.add("selected", [1], 24, true);
-					checkbox.animation.play(Init.trueSettings.get(data[0])?"selected":"unselected");
-					checkbox.antialiasing=false;
-					checkbox.scale.set(3, 3);
-					checkbox.updateHitbox();
-					return checkbox;
-				default:
-					// nawr
-			}
-		}
-		return null;
+	function setAttachmentAlpha(attachment:FlxSprite, newAlpha:Float)
+	{
+		// oddly enough, you can't set alphas of objects that arent directly and inherently defined as a value.
+		// ya flixel is weird lmao
+		if (attachment != null)
+			attachment.alpha = newAlpha;
+		// therefore, I made a script to circumvent this by defining the attachment with the `attachment` variable!
+		// pretty neat, huh?
 	}
 
-	function loadSelectedGroup(){
-		var name = currentScreen[curSelected][0];
-		loadGroup(name);
-	}
+	var infoText:FlxText;
+	var finalText:String;
+	var textValue:String = '';
+	var infoTimer:FlxTimer;
 
-	function changeSelection(inc:Int){
-		curSelected+=inc;
-		if (curSelected > currentScreen.length - 1)
-			curSelected = 0;
-
-		if (curSelected < 0)
-			curSelected = currentScreen.length - 1;
-		currentSelected.set(currentScreenName, curSelected);
-		if (currentScreen[curSelected][1] == null)
-			changeSelection(inc==0?1:inc);
-	}
-	override function update(elapsed:Float){
+	override public function update(elapsed:Float)
+	{
 		super.update(elapsed);
-		
-		
-		if (Math.abs(centralTextbox.boxWidth - expanseHorizontal) < 0.05)
-			centralTextbox.boxWidth = expanseHorizontal;
-		else
-			centralTextbox.boxWidth = FlxMath.lerp(centralTextbox.boxWidth, expanseHorizontal, 0.3 * (elapsed / (1 / 60)));
 
-		if (Math.abs(centralTextbox.boxHeight - expanseVertical) < 0.05)
-			centralTextbox.boxHeight = expanseVertical;
-		else
-			centralTextbox.boxHeight = FlxMath.lerp(centralTextbox.boxHeight, expanseVertical, 0.3 * (elapsed / (1 / 60)));
-
-		//centralTextbox.scale.x = FlxMath.lerp(centralTextbox.scale.x, scale, 0.3 * (elapsed / (1 / 60)));
-		//centralTextbox.scale.y = FlxMath.lerp(centralTextbox.scale.y, scale, 0.3 * (elapsed / (1 / 60)));
-		//trace(centralTextbox.scale.x, centralTextbox.scale.y);
-		selector.scale.set(centralTextbox.scale.x * (centralTextbox.boxWidth / expanseHorizontal),
-		centralTextbox.scale.y * (centralTextbox.boxHeight / expanseVertical));
-		selector.x = centralTextbox.x - centralTextbox.width / 2 + (selector.scale.x * centralTextbox.boxInterval);
-		selector.screenCenter(Y);
-		selector.y -= (centralTextbox.boxInterval * centralTextbox.boxHeight * centralTextbox.scale.y) / 2;
-		selector.y += 12;
-
-		var m = curSelected;
-		// TODO: rewrite scrolling so that it stays in the middle til the end idfk
-		// I hate doing this shit lol
-		if (curSelected > 12)
-			m -= curSelected - 12;
-		
-		selector.y += 36 * m;
-		for (i in 0...currentDisplayed.members.length)
+		// just uses my outdated code for the main menu state where I wanted to implement
+		// hold scrolling but I couldnt because I'm dumb and lazy
+		if (!lockedMovement)
 		{
-			var s = i;
-			if (curSelected > 12)
-				s -= curSelected-12;
+			// check for the current selection
+			if (curSelectedScript != null)
+				curSelectedScript();
 
-			var text = currentDisplayed.members[i];
-			text.visible=s < 13 && s >= 0;
-			text.scale.set(centralTextbox.scale.x * (centralTextbox.boxWidth / expanseHorizontal), centralTextbox.scale.y * (centralTextbox.boxHeight / expanseVertical));
-			text.updateHitbox();
-			text.screenCenter();
-			if(currentScreen[i][1]!=null)
-				text.x -= ((centralTextbox.width - text.width)/2) - (selector.frameWidth * selector.scale.x);
+			updateSelections();
+		}
 
-			text.y -= (centralTextbox.boxInterval * centralTextbox.boxHeight * centralTextbox.scale.y)/2;
+		if (Init.gameSettings.get(activeSubgroup.members[curSelection].text) != null)
+		{
+			// lol had to set this or else itd tell me expected }
+			var currentSetting = Init.gameSettings.get(activeSubgroup.members[curSelection].text);
+			var textValue = currentSetting[2];
+			if (textValue == null)
+				textValue = "";
 
-			text.y += 12;
-			text.y += 36 * s;
+			if (finalText != textValue)
+			{
+				// trace('call??');
+				// trace(textValue);
+				regenInfoText();
 
-			var attachment = currentExtras.get(text);
-			if(attachment!=null){
-				attachment.scale.set(centralTextbox.scale.x * (centralTextbox.boxWidth / expanseHorizontal),
-					centralTextbox.scale.y * (centralTextbox.boxHeight / expanseVertical));
-				attachment.updateHitbox();
-				if((attachment is PixelSelector)){
-					attachment.x = text.x + text.width;
-					attachment.y = text.y + 6; // da magic number 
-				}else{
-					attachment.x = text.x + text.width;
-					attachment.y = text.y + ((text.height - attachment.height) / 2);
+				var textSplit = [];
+				finalText = textValue;
+				textSplit = finalText.split("");
+
+				var loopTimes = 0;
+				infoTimer = new FlxTimer().start(0.025, function(tmr:FlxTimer)
+				{
+					//
+					infoText.text += textSplit[loopTimes];
+					infoText.screenCenter(X);
+
+					loopTimes++;
+				}, textSplit.length);
+			}
+		}
+
+		// move the attachments if there are any
+		for (setting in currentAttachmentMap.keys())
+		{
+			if ((setting != null) && (currentAttachmentMap.get(setting) != null))
+			{
+				var thisAttachment = currentAttachmentMap.get(setting);
+				thisAttachment.x = setting.x - 100;
+				thisAttachment.y = setting.y - 50;
+			}
+		}
+
+		if (controls.BACK)
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			if (curCategory != 'main')
+				loadSubgroup('main');
+			else
+				Main.switchState(this, new MainMenuState());
+		}
+	}
+
+	private function regenInfoText()
+	{
+		if (infoTimer != null)
+			infoTimer.cancel();
+		if (infoText != null)
+			infoText.text = "";
+	}
+
+	function updateSelections()
+	{
+		var up = controls.UI_UP;
+		var down = controls.UI_DOWN;
+		var up_p = controls.UI_UP_P;
+		var down_p = controls.UI_DOWN_P;
+		var controlArray:Array<Bool> = [up, down, up_p, down_p];
+
+		if (controlArray.contains(true))
+		{
+			for (i in 0...controlArray.length)
+			{
+				// here we check which keys are pressed
+				if (controlArray[i] == true)
+				{
+					// if single press
+					if (i > 1)
+					{
+						// up is 2 and down is 3
+						// paaaaaiiiiiiinnnnn
+						if (i == 2)
+							selectOption(curSelection - 1);
+						else if (i == 3)
+							selectOption(curSelection + 1);
+					}
 				}
-				attachment.visible = text.visible;
+				//
+			}
+		}
+	}
+
+	private function returnSubgroup(groupName:String):FlxTypedGroup<Alphabet>
+	{
+		//
+		var newGroup:FlxTypedGroup<Alphabet> = new FlxTypedGroup<Alphabet>();
+
+		for (i in 0...categoryMap.get(groupName)[0].length)
+		{
+			if (Init.gameSettings.get(categoryMap.get(groupName)[0][i][0]) == null
+				|| Init.gameSettings.get(categoryMap.get(groupName)[0][i][0])[3] != Init.FORCED)
+			{
+				var thisOption:Alphabet = new Alphabet(0, 0, categoryMap.get(groupName)[0][i][0], true, false);
+				thisOption.screenCenter();
+				thisOption.y += (90 * (i - Math.floor(categoryMap.get(groupName)[0].length / 2)));
+				thisOption.targetY = i;
+				thisOption.disableX = true;
+				// hardcoded main so it doesnt have scroll
+				if (groupName != 'main')
+					thisOption.isMenuItem = true;
+				thisOption.alpha = 0.6;
+				newGroup.add(thisOption);
 			}
 		}
 
-		if (canControl){
-			var pressUp = controls.UI_UP_P;
-			var pressDown = controls.UI_DOWN_P;
-			var confirm = controls.ACCEPT;
-			var back = controls.BACK;
+		return newGroup;
+	}
 
-			if(back){
-				if(currentScreenName=='main')
-					exit();
-				else
-					loadGroup("main");
+	private function returnExtrasMap(alphabetGroup:FlxTypedGroup<Alphabet>):Map<Alphabet, Dynamic>
+	{
+		var extrasMap:Map<Alphabet, Dynamic> = new Map<Alphabet, Dynamic>();
+		for (letter in alphabetGroup)
+		{
+			if (Init.gameSettings.get(letter.text) != null)
+			{
+				switch (Init.gameSettings.get(letter.text)[1])
+				{
+					case Init.SettingTypes.Checkmark:
+						// checkmark
+						var checkmark = ForeverAssets.generateCheckmark(10, letter.y, 'checkboxThingie', 'base', 'default', 'UI');
+						checkmark.playAnim(Std.string(Init.trueSettings.get(letter.text)) + ' finished');
+
+						extrasMap.set(letter, checkmark);
+					case Init.SettingTypes.Selector:
+						// selector
+						var selector:Selector = new Selector(10, letter.y, letter.text, Init.gameSettings.get(letter.text)[4],
+							(letter.text == 'Framerate Cap') ? true : false, (letter.text == 'Stage Opacity') ? true : false);
+
+						extrasMap.set(letter, selector);
+					default:
+						// dont do ANYTHING
+				}
+				//
 			}
-
-			/*if (pressDown)
-				curSelected++;
-			
-			if (pressUp)
-				curSelected--;
-			
-			if (curSelected > currentScreen.length - 1)
-				curSelected = 0;
-
-			if (curSelected < 0)
-				curSelected = currentScreen.length - 1;*/
-			var last = curSelected;
-			if (pressDown)
-				changeSelection(1);
-			if (pressUp)
-				changeSelection(-1);
-
-			if(curSelected != last)
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-
-			
-			if (confirm){
-				if (currentScreen[curSelected][1]!=null)
-					currentScreen[curSelected][1]();
-			}
-
-			if (currentScreen[curSelected][3]!=null)
-				currentScreen[curSelected][3]();
 		}
+
+		return extrasMap;
+	}
+
+	/*
+		This is the base option return
+	 */
+	public function getFromOption()
+	{
+		if (Init.gameSettings.get(activeSubgroup.members[curSelection].text) != null)
+		{
+			switch (Init.gameSettings.get(activeSubgroup.members[curSelection].text)[1])
+			{
+				case Init.SettingTypes.Checkmark:
+					// checkmark basics lol
+					if (controls.ACCEPT)
+					{
+						FlxG.sound.play(Paths.sound('confirmMenu'));
+						lockedMovement = true;
+						FlxFlicker.flicker(activeSubgroup.members[curSelection], 0.5, 0.06 * 2, true, false, function(flick:FlxFlicker)
+						{
+							// LMAO THIS IS HUGE
+							Init.trueSettings.set(activeSubgroup.members[curSelection].text,
+								!Init.trueSettings.get(activeSubgroup.members[curSelection].text));
+							updateCheckmark(currentAttachmentMap.get(activeSubgroup.members[curSelection]),
+								Init.trueSettings.get(activeSubgroup.members[curSelection].text));
+
+							// save the setting
+							Init.saveSettings();
+							lockedMovement = false;
+						});
+					}
+				case Init.SettingTypes.Selector:
+					var selector:Selector = currentAttachmentMap.get(activeSubgroup.members[curSelection]);
+
+					if (!controls.UI_LEFT)
+						selector.selectorPlay('left');
+					if (!controls.UI_RIGHT)
+						selector.selectorPlay('right');
+
+					if (controls.UI_RIGHT_P)
+						updateSelector(selector, 1);
+					else if (controls.UI_LEFT_P)
+						updateSelector(selector, -1);
+				default:
+					// none
+			}
+		}
+	}
+
+	function updateCheckmark(checkmark:FNFSprite, animation:Bool)
+	{
+		if (checkmark != null)
+			checkmark.playAnim(Std.string(animation));
+	}
+
+	function updateSelector(selector:Selector, updateBy:Int)
+	{
+		var fps = selector.fpsCap;
+		var bgdark = selector.darkBG;
+		if (fps)
+		{
+			// bro I dont even know if the engine works in html5 why am I even doing this
+			// lazily hardcoded fps cap
+			var originalFPS = Init.trueSettings.get(activeSubgroup.members[curSelection].text);
+			var increase = 15 * updateBy;
+			if (originalFPS + increase < 30)
+				increase = 0;
+			// high fps cap
+			if (originalFPS + increase > 360)
+				increase = 0;
+
+			if (updateBy == -1)
+				selector.selectorPlay('left', 'press');
+			else
+				selector.selectorPlay('right', 'press');
+
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+
+			originalFPS += increase;
+			selector.chosenOptionString = Std.string(originalFPS);
+			selector.optionChosen.text = Std.string(originalFPS);
+			Init.trueSettings.set(activeSubgroup.members[curSelection].text, originalFPS);
+			Init.saveSettings();
+		}
+		else if (bgdark)
+		{
+			// lazily hardcoded darkness cap
+			var originaldark = Init.trueSettings.get(activeSubgroup.members[curSelection].text);
+			var increase = 5 * updateBy;
+			if (originaldark + increase < 0)
+				increase = 0;
+			// high darkness cap
+			if (originaldark + increase > 100)
+				increase = 0;
+
+			if (updateBy == -1)
+				selector.selectorPlay('left', 'press');
+			else
+				selector.selectorPlay('right', 'press');
+
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+
+			originaldark += increase;
+			selector.chosenOptionString = Std.string(originaldark);
+			selector.optionChosen.text = Std.string(originaldark);
+			Init.trueSettings.set(activeSubgroup.members[curSelection].text, originaldark);
+			Init.saveSettings();
+		}
+		else if (!fps && !bgdark)
+		{
+			// get the current option as a number
+			var storedNumber:Int = 0;
+			var newSelection:Int = storedNumber;
+			if (selector.options != null)
+			{
+				for (curOption in 0...selector.options.length)
+				{
+					if (selector.options[curOption] == selector.optionChosen.text)
+						storedNumber = curOption;
+				}
+
+				newSelection = storedNumber + updateBy;
+				if (newSelection < 0)
+					newSelection = selector.options.length - 1;
+				else if (newSelection >= selector.options.length)
+					newSelection = 0;
+			}
+
+			if (updateBy == -1)
+				selector.selectorPlay('left', 'press');
+			else
+				selector.selectorPlay('right', 'press');
+
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+
+			selector.chosenOptionString = selector.options[newSelection];
+			selector.optionChosen.text = selector.chosenOptionString;
+
+			Init.trueSettings.set(activeSubgroup.members[curSelection].text, selector.chosenOptionString);
+			Init.saveSettings();
+		}
+	}
+
+	public function callNewGroup()
+	{
+		if (controls.ACCEPT)
+		{
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			lockedMovement = true;
+			FlxFlicker.flicker(activeSubgroup.members[curSelection], 0.5, 0.06 * 2, true, false, function(flick:FlxFlicker)
+			{
+				loadSubgroup(activeSubgroup.members[curSelection].text);
+			});
+		}
+	}
+
+	public function openControlmenu()
+	{
+		if (controls.ACCEPT)
+		{
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			lockedMovement = true;
+			FlxFlicker.flicker(activeSubgroup.members[curSelection], 0.5, 0.06 * 2, true, false, function(flick:FlxFlicker)
+			{
+				openSubState(new OptionsSubstate());
+				lockedMovement = false;
+			});
+		}
+	}
+
+	#if mobile
+	public function openMobileControlsMenu()
+	{
+		if (controls.ACCEPT)
+		{
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			lockedMovement = true;
+			FlxFlicker.flicker(activeSubgroup.members[curSelection], 0.5, 0.06 * 2, true, false, function(flick:FlxFlicker)
+			{
+				openSubState(new mobile.MobileControlsSubState());
+				lockedMovement = false;
+			});
+		}
+	}
+	#end
+
+	public function exitMenu()
+	{
+		//
+		if (controls.ACCEPT)
+		{
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			lockedMovement = true;
+			FlxFlicker.flicker(activeSubgroup.members[curSelection], 0.5, 0.06 * 2, true, false, function(flick:FlxFlicker)
+			{
+				Main.switchState(this, new MainMenuState());
+				lockedMovement = false;
+			});
+		}
+		//
 	}
 }
