@@ -95,7 +95,7 @@ class MainMenuState extends MusicBeatState
 		persistentDraw=true;
 
 		ForeverTools.resetMenuMusic();
-		Discord.changePresence('MAIN MENU', 'Main Menu');
+		
 
 		// POKEMON YELLOW LOL
 		backdrop = new FlxBackdrop(Paths.image('menus/menu/pokemon_yellow_noise'), 1, 1, true, true, 1, 1);
@@ -150,6 +150,10 @@ class MainMenuState extends MusicBeatState
 		add(textGroup);
 		add(lockGroup);
 
+  #if android
+	addVirtualPad(UP_DOWN, A_B);
+	#end
+		
 		blackScreen = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
 		blackScreen.setGraphicSize(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2));
 		blackScreen.visible = false;
