@@ -596,6 +596,11 @@ class Init extends FlxState
 
 		FlxG.save.bind('lullabyv2', 'hypno');
 		//FlxG.save.bind('lullabyfr', 'hypno');
+		#if android
+		FlxG.android.preventDefaultKeys = [BACK];
+		#end
+
+			FlxG.save.bind('lullabyv2', 'hypno');
 		Highscore.load();
 
 		loadSettings();
