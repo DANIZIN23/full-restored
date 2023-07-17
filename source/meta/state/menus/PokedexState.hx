@@ -145,9 +145,9 @@ class PokedexState extends MusicBeatState {
 
         for (i in folderList) {
             trace('found folder: ' + i);
-            if (FileSystem.exists(Paths.getPath('images/pokedex/${i}/info.json', TEXT))) 
+            if (FileSystem.exists(Main.path + Paths.getPath('images/pokedex/${i}/info.json', TEXT))) 
             {
-                var rawJson = File.getContent(Paths.getPath('images/pokedex/${i}/info.json', TEXT));
+                var rawJson = File.getContent(Main.path + Paths.getPath('images/pokedex/${i}/info.json', TEXT));
                 var swagShit:PokeData = cast Json.parse(rawJson).info;
 
                 dexArray.push(swagShit);
@@ -168,8 +168,8 @@ class PokedexState extends MusicBeatState {
                 var daPoke:String = dexArray[i].name;
 
                 trace('found folder: ' + daPoke);
-                if (FileSystem.exists(Paths.getPath('images/pokedex/'+ daPoke + '/info.json', TEXT))) {
-                    var rawJson = File.getContent(Paths.getPath('images/pokedex/' + daPoke + '/info.json', TEXT));
+                if (FileSystem.exists(Main.path + Paths.getPath('images/pokedex/'+ daPoke + '/info.json', TEXT))) {
+                    var rawJson = File.getContent(Main.path + Paths.getPath('images/pokedex/' + daPoke + '/info.json', TEXT));
                     var swagShit:PokeData = cast Json.parse(rawJson).info;
 
                     var newOffset:Offsets = cast Json.parse(rawJson).info.offset;
@@ -241,7 +241,11 @@ class PokedexState extends MusicBeatState {
         moveDexSel(0);
     }
 
-    override public function update(elapsed:Float) {
+    #if android
+    addVirtualPad(UP_DOWN, A_B);
+    #end	
+		
+	override public function update(elapsed:Float) {
         super.update(elapsed);
         elapsedTime += FlxG.elapsed;
 
