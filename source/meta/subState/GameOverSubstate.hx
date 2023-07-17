@@ -469,6 +469,10 @@ class GameOverSubstate extends MusicBeatSubState
 
 				deathEnd = function() { bf.playAnim('deathConfirm'); }
 			
+    #if android
+		addVirtualPad(NONE, A_B);
+		#end
+			
 			case 'mx' | 'lord-x' | 'hypno-cards':
 				FlxG.sound.play(Paths.sound(deathSoundName));
 
@@ -549,22 +553,10 @@ class GameOverSubstate extends MusicBeatSubState
 						add(bg);
 						bg.antialiasing = true;
 
-
-						var video:MP4Handler = new MP4Handler();
-						video.playVideo(Paths.video('feraligatr'));
-						video.finishCallback = function()
-						{
-							if (video.bitmapData != null)
-								bg.pixels = video.bitmapData;
-
-							bg.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
-							bg.screenCenter();
-						}
-	
 						deathEnd = function()
 						{
 							try{
-								if (video != null && !video.isDisposed) video.finishVideo();
+								{
 							}catch(e:Dynamic){
 								trace("caught because lazy " + e);
 							}
@@ -582,7 +574,7 @@ class GameOverSubstate extends MusicBeatSubState
 
 						escapeFunction = function ()
 							{
-								if (video != null) video.finishVideo();
+								
 							}
 					} 
 				else if (PlayState.SONG.song.toLowerCase() == "monochrome") {
