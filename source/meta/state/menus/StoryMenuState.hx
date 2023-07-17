@@ -130,6 +130,10 @@ class StoryMenuState extends MusicBeatState {
 				moverCooldown = 0;
 			horizontalSelection(newSelection, cartridgeSpriteList.length - 1);
 
+			#if android	
+		addVirtualPad(LEFT_FULL, A_B);	
+		#end
+			
 			if (controls.ACCEPT)
 			{
 				cartridgeSpriteList[selectedWeek].animation.play('confirm');
