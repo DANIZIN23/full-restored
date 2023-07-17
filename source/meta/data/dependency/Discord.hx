@@ -1,3 +1,5 @@
+
+#if desktop
 package meta.data.dependency;
 
 import lime.app.Application;
