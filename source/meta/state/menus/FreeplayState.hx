@@ -143,13 +143,17 @@ class FreeplayState extends MusicBeatState
 		// add(selector);
 	}
 
+    #if android	
+		addVirtualPad(LEFT_FULL, A_B);	
+		#end
+	
 	public function addSong(songName:String, weekNum:Int, songCharacter:String, ?library:String, old:Bool, songColor:FlxColor)
 	{
 		///*
 		var coolDifficultyArray = [];
 		for (i in CoolUtil.difficultyArray)
-			if (FileSystem.exists(Paths.songJson(songName, songName + '-' + i, old))
-				|| (FileSystem.exists(Paths.songJson(songName, songName, old)) && i == "NORMAL"))
+			if (Assests.exists(Paths.songJson(songName, songName + '-' + i, old))
+				|| (Assests.exists(Paths.songJson(songName, songName, old)) && i == "NORMAL"))
 				coolDifficultyArray.push(i);
 
 		if (coolDifficultyArray.length > 0)
