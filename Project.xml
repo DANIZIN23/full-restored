@@ -18,7 +18,7 @@
 	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
 
 	<!--Desktop-specific-->
-	<window if="desktop" orientation="landscape" fullscreen="false" width="1280" height="720" />
+	<window if="mobile" orientation="landscape" fullscreen="false" width="1280" height="720" />
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
