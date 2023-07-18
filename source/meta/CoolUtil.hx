@@ -70,7 +70,7 @@ class CoolUtil
 	{
 		//
 		
-		#if !android
+		
 		var libraryArray:Array<String> = [];
 		var unfilteredLibrary = FileSystem.readDirectory(SUtil.getPath() + '$subDir/$library');
 
@@ -80,7 +80,7 @@ class CoolUtil
 				libraryArray.push(folder);
 		}
 		trace(libraryArray);
-                #end
+                
 		return libraryArray;
 	}
 
