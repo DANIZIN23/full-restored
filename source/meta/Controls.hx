@@ -1,12 +1,13 @@
 package meta;
 
-
 import flixel.FlxG;
 import flixel.input.FlxInput;
 import flixel.input.actions.FlxAction;
+import flixel.input.actions.FlxActionInput;
 import flixel.input.actions.FlxActionInputDigital;
 import flixel.input.actions.FlxActionManager;
 import flixel.input.actions.FlxActionSet;
+import flixel.input.gamepad.FlxGamepadButton;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.keyboard.FlxKey;
 #if android
@@ -341,7 +342,8 @@ class Controls extends FlxActionSet
 	{
 		super.update();
 	}
-#if android
+
+	#if android
 	public var trackedinputsUI:Array<FlxActionInput> = [];
 	public var trackedinputsNOTES:Array<FlxActionInput> = [];
 
@@ -397,7 +399,8 @@ class Controls extends FlxActionSet
 				inline forEachBound(Control.UI_RIGHT, (action, state) -> addbuttonUI(action, VirtualPad.buttonRight2, state));
 			case NONE: // do nothing
 		}
-switch (Action)
+
+		switch (Action)
 		{
 			case A:
 				inline forEachBound(Control.ACCEPT, (action, state) -> addbuttonUI(action, VirtualPad.buttonA, state));
@@ -675,13 +678,6 @@ switch (Action)
 	 */
 	public function bindKeys(control:Control, keys:Array<FlxKey>)
 	{
-		var copyKeys:Array<FlxKey> = keys.copy();
-		for (i in 0...copyKeys.length)
-		{
-			if (i == NONE)
-				copyKeys.remove(i);
-		}
-
 		#if (haxe >= "4.0.0")
 		inline forEachBound(control, (action, state) -> addKeys(action, keys, state));
 		#else
@@ -695,12 +691,6 @@ switch (Action)
 	 */
 	public function unbindKeys(control:Control, keys:Array<FlxKey>)
 	{
-		var copyKeys:Array<FlxKey> = keys.copy();
-		for (i in 0...copyKeys.length)
-		{
-			if (i == NONE)
-				copyKeys.remove(i);
-		}
 		#if (haxe >= "4.0.0")
 		inline forEachBound(control, (action, _) -> removeKeys(action, keys));
 		#else
@@ -711,8 +701,7 @@ switch (Action)
 	inline static function addKeys(action:FlxActionDigital, keys:Array<FlxKey>, state:FlxInputState)
 	{
 		for (key in keys)
-			if (key != NONE)
-				action.addKey(key, state);
+			action.addKey(key, state);
 	}
 
 	static function removeKeys(action:FlxActionDigital, keys:Array<FlxKey>)
@@ -744,12 +733,12 @@ switch (Action)
 		inline bindKeys(Control.ACCEPT, [
 			Init.gameControls.get('ACCEPT')[0][0],
 			Init.gameControls.get('ACCEPT')[0][1],
-			FlxKey.SPACE
+			Init.gameControls.get('ACCEPT')[0][2]
 		]);
 		inline bindKeys(Control.BACK, [
 			Init.gameControls.get('BACK')[0][0],
 			Init.gameControls.get('BACK')[0][1],
-			FlxKey.BACKSPACE
+			Init.gameControls.get('BACK')[0][2]
 		]);
 		inline bindKeys(Control.PAUSE, [Init.gameControls.get('PAUSE')[0][0], Init.gameControls.get('PAUSE')[0][1]]);
 		inline bindKeys(Control.RESET, [Init.gameControls.get('RESET')[0][0], Init.gameControls.get('RESET')[0][1]]);
