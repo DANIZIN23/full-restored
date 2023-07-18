@@ -23,6 +23,7 @@ import flixel.util.FlxTimer;
 import flxanimate.FlxAnimate;
 import gameObjects.userInterface.menu.Textbox;
 import haxe.Json;
+import lime.utils.Assets;
 import lime.math.Vector2;
 import meta.MusicBeat.MusicBeatState;
 import meta.data.Conductor;
