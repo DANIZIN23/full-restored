@@ -18,6 +18,7 @@ import meta.MusicBeat.MusicBeatSubState;
 import meta.data.font.Alphabet;
 import meta.state.*;
 import meta.state.menus.*;
+import lime.utils.Assets;
 import sys.thread.Mutex;
 import sys.thread.Thread;
 import meta.state.menus.OptionsMenuState;
