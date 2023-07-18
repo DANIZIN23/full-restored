@@ -63,7 +63,7 @@ import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
 import openfl.utils.Assets;
 import sys.io.File;
-
+import meta.data.dependency.Discord;
 #if sys
 import sys.FileSystem;
 #end
