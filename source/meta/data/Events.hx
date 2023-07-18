@@ -316,8 +316,8 @@ class Events {
 				futureEvents.push(event);
 			} else {
 				if (PlayState.SONG != null && CoolUtil.spaceToDash(PlayState.SONG.song.toLowerCase()) == event) {
-					var internalEvents:Array<String> = Assets.readDirectory('assets/events/$event');
-					for (subEvent in internalEvents)
+                                        var list = Assets.list();
+					var internalEvents:Array<String> = list.filter(text -> text.contains('assets/events'));
 					{
 						subEvent = subEvent.substring(0, subEvent.indexOf('.', 0));
 						loadedModules.set(subEvent, ScriptHandler.loadModule('events/$event/$subEvent'));
