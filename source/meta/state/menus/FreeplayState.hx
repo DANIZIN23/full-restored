@@ -20,6 +20,7 @@ import meta.data.Song.SwagSong;
 import meta.data.dependency.Discord;
 import meta.data.font.Alphabet;
 import openfl.media.Sound;
+import lime.utils.Assets;
 import sys.FileSystem;
 import sys.thread.Mutex;
 import sys.thread.Thread;
@@ -88,7 +89,7 @@ class FreeplayState extends MusicBeatState
 		// LOAD MUSIC
 		// ForeverTools.resetMenuMusic();
 
-		Discord.changePresence('FREEPLAY MENU', 'Main Menu');
+		
 
 		// LOAD CHARACTERS
 		bg = new FlxSprite().loadGraphic(Paths.image('menus/base/menuDesat'));
