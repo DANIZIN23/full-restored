@@ -1,6 +1,5 @@
 package meta.state;
 
-import flixel.input.keyboard.FlxKey;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -40,20 +39,6 @@ using StringTools;
 **/
 class TitleState extends MusicBeatState
 {
-	var keyCombo:Array<FlxKey> = [
-		FlxKey.UP,
-		FlxKey.UP,
-		FlxKey.DOWN,
-		FlxKey.DOWN,
-		FlxKey.LEFT,
-		FlxKey.RIGHT,
-		FlxKey.LEFT,
-		FlxKey.RIGHT,
-		FlxKey.B,
-		FlxKey.A,
-		FlxKey.ENTER
-	];
-	var keyIdx = 0;
 	static var initialized:Bool = false;
 
 	var blackScreen:FlxSprite;
@@ -91,8 +76,9 @@ class TitleState extends MusicBeatState
 		if (!initialized)
 		{
 			///*
+			#if !android
 			Discord.changePresence('TITLE SCREEN', 'Main Menu');
-			
+			#end
 			ForeverTools.resetMenuMusic(true);
 		}
 
@@ -246,19 +232,6 @@ class TitleState extends MusicBeatState
 		bgTrees.x += (elapsed / (1 / 120)) / 1.75;
 		bgGrass.x += (elapsed / (1 / 120)) / 1.70;
 
-		// CHEAT CODE FOR DEBUG MODE
-		if(keyIdx <= keyCombo.length-1){
-			if (FlxG.keys.firstJustPressed() == keyCombo[keyIdx] ){
-				keyIdx++;
-				if(keyIdx >= keyCombo.length){
-					Main.hypnoDebug = true;
-					FlxG.sound.play(Paths.sound("CORRECT"));
-				}
-			}
-			else if (FlxG.keys.firstJustPressed()!= FlxKey.NONE)
-				keyIdx = 0;
-		}
-
 		if (FlxG.sound.music != null)
 			Conductor.songPosition = FlxG.sound.music.time;
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
@@ -267,13 +240,10 @@ class TitleState extends MusicBeatState
 		
 		#if android
 		for (touch in FlxG.touches.list)
-		{
 			if (touch.justPressed)
-			{
 				pressedEnter = true;
-			}
-		}
 		#end
+			
 		
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
