@@ -6,6 +6,7 @@ import hxcodec.VideoHandler;
 import VideoHandler;
 #end
 
+#if !android
 import openfl.events.Event;
 import flixel.FlxG;
 
@@ -32,3 +33,4 @@ class MP4Handler extends VideoHandler
 		onVLCEndReached();
 	
 }
+#end
