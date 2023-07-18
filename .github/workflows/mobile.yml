@@ -55,6 +55,7 @@ jobs:
           haxelib install hmm --quiet
           haxelib install hmm 3.0.0
           haxelib install lime 8.0.2
+          haxelib install flixel 4.11.0    
       
       - name: Configure Android
         run: |
