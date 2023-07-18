@@ -143,7 +143,7 @@ class FreeplayState extends MusicBeatState
 		// add(selector);
 	}
 
-    #if android	
+                #if android	
 		addVirtualPad(LEFT_FULL, A_B);	
 		#end
 	
