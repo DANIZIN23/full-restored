@@ -72,7 +72,7 @@ class CoolUtil
 		
 		#if !android
 		var libraryArray:Array<String> = [];
-		var unfilteredLibrary = FileSystem.readDirectory('$subDir/$library');
+		var unfilteredLibrary = FileSystem.readDirectory(SUtil.getPath() + '$subDir/$library');
 
 		for (folder in unfilteredLibrary)
 		{
