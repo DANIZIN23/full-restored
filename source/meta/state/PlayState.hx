@@ -3559,7 +3559,7 @@ class PlayState extends MusicBeatState
 		
 		var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
 		if (health > 0)
-			Discord.changePresence(displayRPC, detailsSub, iconRPC);
+			
 		
 	}
 
