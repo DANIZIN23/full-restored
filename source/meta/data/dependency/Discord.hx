@@ -4,7 +4,7 @@ package meta.data.dependency;
 import lime.app.Application;
 import meta.state.PlayState;
 import discord_rpc.DiscordRpc;
-#end
+
 /**
 	Discord Rich Presence, both heavily based on Izzy Engine and the base game's, as well as with a lot of help 
 	from the creator of izzy engine because I'm dummy and dont know how to program discord
