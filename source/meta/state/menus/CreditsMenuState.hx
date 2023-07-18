@@ -13,6 +13,7 @@ import flixel.util.FlxColor;
 import meta.MusicBeat;
 import openfl.display.GraphicsShader;
 import openfl.filters.ShaderFilter;
+import lime.utils.Assets;
 import sys.FileSystem;
 
 using StringTools;
