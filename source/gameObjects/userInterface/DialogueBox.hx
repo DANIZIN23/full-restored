@@ -10,6 +10,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import lime.utils.Assets;
 import meta.data.dependency.FNFSprite;
 import meta.data.font.Alphabet;
 
