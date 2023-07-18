@@ -61,6 +61,7 @@ jobs:
           haxelib install flixel-ui 1.0.2
           haxelib install discord_rpc 1.0.0
           haxelib install hscript 2.5.0
+          haxelib install polymod 1.7.0
       
       - name: Configure Android
         run: |
