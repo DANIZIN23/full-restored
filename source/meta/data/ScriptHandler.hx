@@ -29,6 +29,7 @@ import meta.state.PlayState;
 import openfl.display.GraphicsShader;
 import openfl.display.Shader;
 import openfl.filters.ShaderFilter;
+import lime.utils.Assets;
 import sys.FileSystem;
 import sys.io.File;
 
