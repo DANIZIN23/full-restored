@@ -13,9 +13,8 @@ import gameObjects.userInterface.notes.Strumline;
 import meta.data.ScriptHandler;
 import meta.state.PlayState;
 import openfl.filters.ShaderFilter;
-import lime.utils.Assets;
 import sys.FileSystem;
-
+import openfl.utils.Assets;
 using StringTools;
 
 typedef PlacedEvent = {
@@ -305,7 +304,9 @@ class Events {
 	public static function obtainEvents() {
 		loadedModules.clear();
 		eventList = [];
-		var tempEventArray:Array<String> = Assets.readDirectory('assets/events');
+		
+		var list = Assets.list();
+		var tempEventArray = list.filter(text -> text.contains('assets/events'));
 		//
 		var futureEvents:Array<String> = [];
 		var futureSubEvents:Array<String> = [];
@@ -316,8 +317,10 @@ class Events {
 				futureEvents.push(event);
 			} else {
 				if (PlayState.SONG != null && CoolUtil.spaceToDash(PlayState.SONG.song.toLowerCase()) == event) {
-                                        var list = Assets.list();
+					var list = Assets.list();
 					var internalEvents:Array<String> = list.filter(text -> text.contains('assets/events'));
+					
+					for (subEvent in internalEvents)
 					{
 						subEvent = subEvent.substring(0, subEvent.indexOf('.', 0));
 						loadedModules.set(subEvent, ScriptHandler.loadModule('events/$event/$subEvent'));
