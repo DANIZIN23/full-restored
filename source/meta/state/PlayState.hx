@@ -3557,7 +3557,7 @@ class PlayState extends MusicBeatState
 
 	public static function updateRPC(pausedRPC:Bool)
 	{
-		//Discord.changePresence('Heard you like snooping around Discord', 'Real classy.', iconRPC);
+		
 		
 		var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
 		if (health > 0)
