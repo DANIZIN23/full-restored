@@ -12,6 +12,7 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.input.mouse.FlxMouseEventManager;
+import lime.utils.Assets;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.text.FlxText;
@@ -178,20 +179,7 @@ class ShopState extends MusicBeatState
 	var currentShopDialogue:String;
 	var lastShopDialogue:Array<Int> = [];
 
-	function updatePresence(){
-		/*if (!freeplaySelected)
-			Discord.changePresence('BROWSING THE SHOP', 'Freeplay Menu');
-		else
-			Discord.changePresence('CHOOSING A SONG', 'Freeplay Menu');*/
-		switch(page){
-			case SHOP:
-				Discord.changePresence('BROWSING THE SHOP', 'Freeplay Menu');
-			case FREEPLAY:
-				Discord.changePresence('CHOOSING A SONG', 'Freeplay Menu');
-			case FREEPLAY_OLD:
-				Discord.changePresence('CHOOSING AN OLD SONG', 'Legacy Freeplay Menu');
-			default:
-				Discord.changePresence('IDK', 'Limbo');
+
 
 		}
 
