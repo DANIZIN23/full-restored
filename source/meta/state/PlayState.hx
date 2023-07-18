@@ -823,6 +823,12 @@ class PlayState extends MusicBeatState
 		uiHUD.cameras = [camHUD];
 		//
 
+		#if android
+		addAndroidControls();
+		androidControls.visible = true;
+		#end
+		
+		
 		add(uiHUD.iconGroup);
 		add(uiHUD.scoreBar);
 		add(uiHUD.accuracyBar);
