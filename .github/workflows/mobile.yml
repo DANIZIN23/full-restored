@@ -57,6 +57,7 @@ jobs:
           haxelib install lime 8.0.2
           haxelib install flixel 4.11.0    
           haxelib install openfl 9.2.2
+          haxelib install flixel-addons 3.1.1   
       
       - name: Configure Android
         run: |
