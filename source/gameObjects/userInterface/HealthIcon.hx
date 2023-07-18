@@ -4,7 +4,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
-import openfl.utils.Assets as OpenFlAssets;
+import lime.utils.Assets;
 import sys.FileSystem;
 
 using StringTools;
