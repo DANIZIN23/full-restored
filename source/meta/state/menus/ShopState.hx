@@ -181,8 +181,6 @@ class ShopState extends MusicBeatState
 
 
 
-		}
-
 	}
 	override public function create()
 	{
