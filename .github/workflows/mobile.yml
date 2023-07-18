@@ -53,7 +53,7 @@ jobs:
           haxelib setup ~/haxelib
           haxelib install hxcpp 4.2.1 > /dev/null --quiet
           haxelib install hmm --quiet
-          haxelib run hmm install
+          haxelib install hmm 3.0.0
 
       - name: Configure Android
         run: |
