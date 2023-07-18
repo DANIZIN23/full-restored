@@ -135,7 +135,6 @@ class MusicBeatState extends FNFUIState
 		}
 		#end
 	}
-	
 	// class create event
 	override function create()
 	{
@@ -255,7 +254,7 @@ class MusicBeatSubState extends FlxSubState
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
-#if android
+	#if android
 	var virtualPad:FlxVirtualPad;
 	var trackedinputsUI:Array<FlxActionInput> = [];
 
