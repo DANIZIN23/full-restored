@@ -803,7 +803,7 @@ class ShopState extends MusicBeatState
 		{
 			var old:Bool = j == 0 ? true : false;
 			var icon:String = 'gf';
-			var chartExists:Bool = FileSystem.exists(Paths.songJson(i, i + '-hard', old, library));
+			var chartExists:Bool = Assets.exists(Paths.songJson(i, i + '-hard', old, library));
 			if (library != null)
 				chartExists = openfl.utils.Assets.exists(Paths.songJson(i, i + '-hard', old, library), TEXT);
 			if (chartExists)
@@ -2093,7 +2093,7 @@ class ShopState extends MusicBeatState
 							if (portrait != null && portrait != curPortrait)
 							{
 								//  get the new portrait
-								if (!FileSystem.exists(Paths.getPath('images/menus/freeplay/$portrait.png', IMAGE)))
+								if (!Assets.exists(Paths.getPath('images/menus/freeplay/$portrait.png', IMAGE)))
 									portrait = 'unknown';
 								mutex.acquire();
 								switchingPortraits = true;
@@ -2135,7 +2135,7 @@ class ShopState extends MusicBeatState
 							{
 								trace(portrait);
 								//  get the new portrait
-								if (!FileSystem.exists(Paths.getPath('images/menus/freeplay/$portrait.png', IMAGE)))
+								if (!Assets.exists(Paths.getPath('images/menus/freeplay/$portrait.png', IMAGE)))
 									portrait = 'unknown';
 								trace("portrait... " + portrait);
 								oldMutex.acquire();
