@@ -64,6 +64,7 @@ import openfl.media.Sound;
 import openfl.utils.Assets;
 import sys.io.File;
 import meta.data.dependency.Discord;
+import lime.utils.Assets as OpenFlAssets;
 #if sys
 import sys.FileSystem;
 #end
