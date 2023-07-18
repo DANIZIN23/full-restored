@@ -59,6 +59,7 @@ jobs:
           haxelib install openfl 9.2.2
           haxelib install flixel-addons 2.10.0   
           haxelib install flixel-ui 1.0.2
+          haxelib install discord-rpc 1.0.0
       
       - name: Configure Android
         run: |
