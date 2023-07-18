@@ -206,7 +206,7 @@ class Paths
 	}
 
 	static public function shader(name:String) {
-		return que Assets.getText('./assets/shaders/$name.frag');
+		return Assets.getText('./assets/shaders/$name.frag');
 	}
 
 	static function getPreloadPath(file:String) {
