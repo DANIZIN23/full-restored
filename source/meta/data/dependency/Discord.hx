@@ -1,7 +1,7 @@
 
 #if desktop
 package meta.data.dependency;
-
+#end
 import lime.app.Application;
 import meta.state.PlayState;
 import discord_rpc.DiscordRpc;
