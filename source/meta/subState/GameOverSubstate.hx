@@ -106,7 +106,7 @@ class GameOverSubstate extends MusicBeatSubState
 				loopSoundName = 'BurymanDeath';
 				precacheSoundFile(Paths.sound('buryman-death/buriedThud'));
 				precacheSoundFile(Paths.sound('buryman-death/buriedDeath'));
-			case 'dawn' | 'dawn-bf' | 'hellbellplayer':
+			case 'dawn' | 'dawn-bf':
 				daBf = 'dawn';
 				loopSoundName = 'DeathTollDeathAmbience';
 			case 'mike-bed' | 'mike-fp':
@@ -241,8 +241,8 @@ class GameOverSubstate extends MusicBeatSubState
 				deathThingy.y = y - deathThingy.height / 2 - deathThingy.height / 6 + 128;
 				add(deathThingy);
 
-				//if (bf.atlasCharacter != null)
-				//	add(bf.atlasCharacter);
+				if (bf.atlasCharacter != null)
+					add(bf.atlasCharacter);
 
 				updateFunction = function() {
 					camFollow.setPosition(x, y);
@@ -469,10 +469,6 @@ class GameOverSubstate extends MusicBeatSubState
 
 				deathEnd = function() { bf.playAnim('deathConfirm'); }
 			
-    #if android
-		addVirtualPad(NONE, A_B);
-		#end
-			
 			case 'mx' | 'lord-x' | 'hypno-cards':
 				FlxG.sound.play(Paths.sound(deathSoundName));
 
@@ -553,13 +549,12 @@ class GameOverSubstate extends MusicBeatSubState
 						add(bg);
 						bg.antialiasing = true;
 
+
+						
+	
 						deathEnd = function()
 						{
-							try{
-								{
-							}catch(e:Dynamic){
-								trace("caught because lazy " + e);
-							}
+							
 							FlxTween.tween(bg, {alpha: 0}, timeBeforeEnd, {ease: FlxEase.linear});
 
 							onEnd = function()
@@ -573,8 +568,7 @@ class GameOverSubstate extends MusicBeatSubState
 						};
 
 						escapeFunction = function ()
-							{
-								
+							{        
 							}
 					} 
 				else if (PlayState.SONG.song.toLowerCase() == "monochrome") {
@@ -659,6 +653,10 @@ class GameOverSubstate extends MusicBeatSubState
 					};
 					deathEnd = function() {
 						bf.playAnim('deathConfirm');
+							
+							#if android
+		addVirtualPad(NONE, A_B);
+		#end
 					};
 				}
 			
