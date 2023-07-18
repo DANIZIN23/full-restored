@@ -63,7 +63,9 @@ import openfl.filters.ShaderFilter;
 import openfl.media.Sound;
 import openfl.utils.Assets;
 import sys.io.File;
+#if desktop
 import meta.data.dependency.Discord;
+#end
 import lime.utils.Assets as OpenFlAssets;
 #if sys
 import sys.FileSystem;
@@ -3556,7 +3558,7 @@ class PlayState extends MusicBeatState
 	public static function updateRPC(pausedRPC:Bool)
 	{
 		//Discord.changePresence('Heard you like snooping around Discord', 'Real classy.', iconRPC);
-		
+		Discord.changePresence(displayRPC, detailsSub, iconRPC);
 		var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
 		if (health > 0)
 			
