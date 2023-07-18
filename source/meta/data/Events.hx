@@ -13,6 +13,7 @@ import gameObjects.userInterface.notes.Strumline;
 import meta.data.ScriptHandler;
 import meta.state.PlayState;
 import openfl.filters.ShaderFilter;
+import lime.utils.Assets;
 import sys.FileSystem;
 
 using StringTools;
