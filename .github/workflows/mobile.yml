@@ -58,6 +58,7 @@ jobs:
           haxelib install flixel 4.11.0    
           haxelib install openfl 9.2.2
           haxelib install flixel-addons 2.10.0   
+          haxelib install flixel-ui 1.0.2
       
       - name: Configure Android
         run: |
