@@ -108,7 +108,7 @@ class ScriptHandler
 	{
 		// trace('Loading Module $path');
 		var modulePath:String = Paths.module(path);
-		return new ForeverModule(parser.parseString(Assets.getContent(modulePath), modulePath), extraParams);
+		return new ForeverModule(parser.parseString(Assets.getText(modulePath), modulePath), extraParams);
 	}
 }
 
