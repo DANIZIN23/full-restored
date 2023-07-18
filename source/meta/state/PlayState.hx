@@ -3558,11 +3558,12 @@ class PlayState extends MusicBeatState
 	public static function updateRPC(pausedRPC:Bool)
 	{
 		
+		/*
 		
-		var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
+                var displayRPC:String = (pausedRPC) ? detailsPausedText : songDetails;
 		if (health > 0)
 			Discord.changePresence(displayRPC, detailsSub, iconRPC);
-		
+		*/
 	}
 
 	var animationsPlay:Array<Note> = [];
