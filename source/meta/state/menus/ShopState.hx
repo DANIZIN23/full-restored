@@ -29,7 +29,9 @@ import meta.MusicBeat.MusicBeatState;
 import meta.data.Conductor;
 import meta.data.Highscore;
 import meta.data.Song;
+#if desktop
 import meta.data.dependency.Discord;
+#end
 import meta.data.font.Alphabet;
 import meta.state.menus.FreeplayState;
 import meta.subState.UnlockSubstate.LockSprite;
@@ -182,7 +184,7 @@ class ShopState extends MusicBeatState
 			Discord.changePresence('BROWSING THE SHOP', 'Freeplay Menu');
 		else
 			Discord.changePresence('CHOOSING A SONG', 'Freeplay Menu');*/
-		switch(page){
+/*		switch(page){
 			case SHOP:
 				Discord.changePresence('BROWSING THE SHOP', 'Freeplay Menu');
 			case FREEPLAY:
@@ -192,7 +194,7 @@ class ShopState extends MusicBeatState
 			default:
 				Discord.changePresence('IDK', 'Limbo');
 
-		}
+		}/*
 
 	}
 	override public function create()
